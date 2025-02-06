@@ -9,14 +9,16 @@ class ItineraryPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          if (constraints.maxWidth > 900) {
-            return _WideLayout(itineraryData: itineraryData);
-          } else {
-            return _NarrowLayout(itineraryData: itineraryData);
-          }
-        },
+      body: SafeArea(
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            if (constraints.maxWidth > 900) {
+              return _WideLayout(itineraryData: itineraryData);
+            } else {
+              return _NarrowLayout(itineraryData: itineraryData);
+            }
+          },
+        ),
       ),
     );
   }
@@ -37,9 +39,73 @@ class _WideLayout extends StatelessWidget {
         ),
         Expanded(
           flex: 2,
-          child: _ActivitiesList(activities: itineraryData['activities']),
+          child: GridView.builder(
+            padding: EdgeInsets.all(16),
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2, // two columns on wide screens
+              crossAxisSpacing: 16,
+              mainAxisSpacing: 16,
+            ),
+            itemCount: itineraryData['activities'].length,
+            itemBuilder: (context, index) {
+              return _buildActivityItem(itineraryData['activities'][index], index);
+            },
+          ),
         ),
       ],
+    );
+  }
+
+  Widget _buildActivityItem(dynamic activity, int index) {
+    return Card(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: InkWell(
+        onTap: () {
+          // Implement activity details view
+        },
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildActivityTimeCard(activity),
+              SizedBox(height: 16),
+              Text(
+                activity['activity'],
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              SizedBox(height: 8),
+              Text(
+                activity['description'],
+                style: TextStyle(color: Colors.grey[800]),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildActivityTimeCard(dynamic activity) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: Colors.blue[50],
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Text(
+        activity['day'],
+        style: TextStyle(
+          color: Colors.blue[700],
+          fontWeight: FontWeight.bold,
+        ),
+      ),
     );
   }
 }
@@ -58,12 +124,70 @@ class _NarrowLayout extends StatelessWidget {
         ),
         SliverPadding(
           padding: EdgeInsets.all(16),
-          sliver: _ActivitiesList(
-            activities: itineraryData['activities'],
-            isSliver: true,
+          sliver: SliverList(
+            delegate: SliverChildBuilderDelegate(
+                  (context, index) {
+                return _buildActivityItem(itineraryData['activities'][index], index);
+              },
+              childCount: itineraryData['activities'].length,
+            ),
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildActivityItem(dynamic activity, int index) {
+    return Card(
+      margin: EdgeInsets.only(bottom: 16),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: InkWell(
+        onTap: () {
+          // Implement activity details view
+        },
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildActivityTimeCard(activity),
+              SizedBox(height: 16),
+              Text(
+                activity['activity'],
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              SizedBox(height: 8),
+              Text(
+                activity['description'],
+                style: TextStyle(color: Colors.grey[800]),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildActivityTimeCard(dynamic activity) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: Colors.blue[50],
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Text(
+        activity['day'],
+        style: TextStyle(
+          color: Colors.blue[700],
+          fontWeight: FontWeight.bold,
+        ),
+      ),
     );
   }
 }
@@ -168,51 +292,51 @@ class _TripSummary extends StatelessWidget {
       child: Padding(
         padding: EdgeInsets.all(16),
         child: Row(
-            children: [
-        Expanded(
-        child: Column(
-        children: [
-            Icon(Icons.flight_land, color: Colors.green),
-        SizedBox(height: 8),
-        Text(
-          "Check-in",
-          style: TextStyle(color: Colors.grey[600]),
-        ),
-        SizedBox(height: 4),
-        Text(
-          DateFormat('MMM dd, yyyy').format(
-            DateTime.parse(itineraryData['dates']['check_in']),
-          ),
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        ],
-      ),
-    ),
-    Container(
-    height: 60,
-    width: 1,
-    color: Colors.grey[300],
-    ),
-    Expanded(
-    child: Column(
-    children: [
-    Icon(Icons.flight_takeoff, color: Colors.red),
-    SizedBox(height: 8),
-    Text(
-    "Check-out",
-    style: TextStyle(color: Colors.grey[600]),
-    ),
-    SizedBox(height: 4),
-      Text(
-        DateFormat('MMM dd, yyyy').format(
-          DateTime.parse(itineraryData['dates']['check_out']),
-        ),
-        style: TextStyle(fontWeight: FontWeight.bold),
-      ),
-    ],
-    ),
-    ),
-            ],
+          children: [
+            Expanded(
+              child: Column(
+                children: [
+                  Icon(Icons.flight_land, color: Colors.green),
+                  SizedBox(height: 8),
+                  Text(
+                    "Check-in",
+                    style: TextStyle(color: Colors.grey[600]),
+                  ),
+                  SizedBox(height: 4),
+                  Text(
+                    DateFormat('MMM dd, yyyy').format(
+                      DateTime.parse(itineraryData['dates']['check_in']),
+                    ),
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
+            ),
+            Container(
+              height: 60,
+              width: 1,
+              color: Colors.grey[300],
+            ),
+            Expanded(
+              child: Column(
+                children: [
+                  Icon(Icons.flight_takeoff, color: Colors.red),
+                  SizedBox(height: 8),
+                  Text(
+                    "Check-out",
+                    style: TextStyle(color: Colors.grey[600]),
+                  ),
+                  SizedBox(height: 4),
+                  Text(
+                    DateFormat('MMM dd, yyyy').format(
+                      DateTime.parse(itineraryData['dates']['check_out']),
+                    ),
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -293,148 +417,21 @@ class _TripSummary extends StatelessWidget {
   }
 
   int _calculateDuration() {
-    final checkIn = DateTime.parse(itineraryData['dates']['check_in']);
-    final checkOut = DateTime.parse(itineraryData['dates']['check_out']);
-    return checkOut.difference(checkIn).inDays;
-  }
-
-  String _calculateBudget() {
-    // This is a placeholder - implement actual budget calculation
-    return "1,200";
-  }
-}
-
-class _ActivitiesList extends StatelessWidget {
-  final List<dynamic> activities;
-  final bool isSliver;
-
-  _ActivitiesList({
-    required this.activities,
-    this.isSliver = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    if (isSliver) {
-      return SliverList(
-        delegate: SliverChildBuilderDelegate(
-              (context, index) => _buildActivityItem(activities[index], index),
-          childCount: activities.length,
-        ),
-      );
+    final checkIn = DateTime.tryParse(itineraryData['dates']['check_in'] ?? '');
+    final checkOut = DateTime.tryParse(itineraryData['dates']['check_out'] ?? '');
+    if (checkIn != null && checkOut != null) {
+      return checkOut.difference(checkIn).inDays;
+    } else {
+      return 0; // Return 0 or any default value if dates are missing or invalid
     }
-
-    return ListView.builder(
-      padding: EdgeInsets.all(16),
-      itemCount: activities.length,
-      itemBuilder: (context, index) => _buildActivityItem(activities[index], index),
-    );
   }
 
-  Widget _buildActivityItem(dynamic activity, int index) {
-    return Card(
-      margin: EdgeInsets.only(bottom: 16),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: InkWell(
-        onTap: () {
-          // Implement activity details view
-        },
-        borderRadius: BorderRadius.circular(12),
-        child: Padding(
-          padding: EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildActivityTimeCard(activity),
-                  SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          activity['activity'],
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        SizedBox(height: 8),
-                        Row(
-                          children: [
-                            Icon(Icons.schedule, size: 16, color: Colors.grey[600]),
-                            SizedBox(width: 4),
-                            Text(
-                              activity['time'],
-                              style: TextStyle(
-                                color: Colors.grey[600],
-                                fontSize: 14,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                  IconButton(
-                    icon: Icon(Icons.more_vert),
-                    onPressed: () {
-                      // Implement activity options menu
-                    },
-                  ),
-                ],
-              ),
-              SizedBox(height: 16),
-              Text(
-                activity['description'],
-                style: TextStyle(
-                  color: Colors.grey[800],
-                  height: 1.5,
-                ),
-              ),
-              if (activity['tags'] != null) ...[
-                SizedBox(height: 16),
-                Wrap(
-                  spacing: 8,
-                  children: [
-                    for (var tag in activity['tags'])
-                      Chip(
-                        label: Text(tag),
-                        backgroundColor: Colors.blue[50],
-                        labelStyle: TextStyle(color: Colors.blue[700]),
-                      ),
-                  ],
-                ),
-              ],
-            ],
-          ),
-        ),
-      ),
-    );
+  double _calculateBudget() {
+    if (itineraryData['activities'] == null || itineraryData['activities'].isEmpty) {
+      return 0.0; // Return 0 if no activities are present
+    }
+    return itineraryData['activities']
+        .fold(0.0, (total, activity) => total + (activity['cost'] ?? 0.0)); // Use null-aware operator
   }
 
-  Widget _buildActivityTimeCard(dynamic activity) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      decoration: BoxDecoration(
-        color: Colors.blue[50],
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Column(
-        children: [
-          Text(
-            activity['day'],
-            style: TextStyle(
-              color: Colors.blue[700],
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 }
